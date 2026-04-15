@@ -1,0 +1,50 @@
+# 虚拟环境
+venv/
+env/
+
+# 依赖包
+__pycache__/
+*.py[cod]
+*$py.class
+
+# 编辑器文件
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 操作系统文件
+.DS_Store
+Thumbs.db
+
+# 环境变量文件
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# 测试和覆盖率报告
+htmlcov/
+.coverage
+.coverage.*
+.cache
+.pytest_cache/
+.tox/
+.nox/
+
+# 构建和分发文件
+build/
+dist/
+*.egg-info/
+
+# 日志文件
+*.log
+logs/
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# 大型数据文件
+data/
