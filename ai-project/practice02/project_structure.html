@@ -1,0 +1,232 @@
+<!--
+ * Copyright (c) 2015 Mountainstorm
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ * Original from https://github.com/mountainstorm/jquery.graphviz.svg/blob/master/demo.html
+ -->
+<html>
+	<head>
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.4/css/bootstrap.min.css">
+		<!-- <link rel="stylesheet" href="css/graphviz.svg.css"> -->
+	</head>
+
+	<style>
+        #instructions {
+            color: #000000;
+            position: absolute;
+            z-index: 100;
+            bottom: 0px;
+            left: 0px;
+        }
+    </style>
+	<body>
+		<h4 id="instructions">Click node to highlight; Shift-scroll to zoom; Esc to unhighlight</h4>
+		<div id="graph" style="width: 100%; height: 100%; overflow: scroll;"></div>
+
+		<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+		<script type="text/javascript" src="https://cdn.rawgit.com/jquery/jquery-mousewheel/master/jquery.mousewheel.min.js"></script>
+		<script type="text/javascript" src="https://cdn.rawgit.com/jquery/jquery-color/master/jquery.color.js"></script>
+		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.4/js/bootstrap.min.js"></script>
+		<script type="text/javascript">!function(t){"use strict";String.prototype.startsWith=function(t){return 0==this.indexOf(t)},String.prototype.endsWith=function(t){return-1!==this.indexOf(t,this.length-t.length)};var e=function(t,e){this.type=null,this.options=null,this.enabled=null,this.$element=null,this.init("graphviz.svg",t,e)};e.VERSION="1.0.1",e.GVPT_2_PX=32.5,e.DEFAULTS={url:null,svg:null,shrink:"0.125pt",tooltips:{init:function(e){var i=t(this);i.tooltip({container:e,placement:"auto left",animation:!1,viewport:null}).on("hide.bs.tooltip",function(){if(i.attr("data-tooltip-keepvisible"))return!1})},show:function(){var e=t(this);e.attr("data-tooltip-keepvisible",!0),e.tooltip("show")},hide:function(){var e=t(this);e.removeAttr("data-tooltip-keepvisible"),e.tooltip("hide")},update:function(){var e=t(this);e.attr("data-tooltip-keepvisible")&&e.tooltip("show")}},zoom:!0,highlight:{selected:function(t,e){return t},unselected:function(t,e){return jQuery.Color(t).transition(e,.9)}},ready:null},e.prototype.init=function(e,i,n){if(this.enabled=!0,this.type=e,this.$element=t(i),this.options=this.getOptions(n),n.url){var o=this;t.get(n.url,null,function(e){var i=t("svg",e);o.$element.html(document.adoptNode(i[0])),o.setup()},"xml")}else n.svg&&this.$element.html(n.svg),this.setup()},e.prototype.getDefaults=function(){return e.DEFAULTS},e.prototype.getOptions=function(e){return(e=t.extend({},this.getDefaults(),this.$element.data(),e)).shrink&&("object"!=typeof e.shrink&&(e.shrink={x:e.shrink,y:e.shrink}),e.shrink.x=this.convertToPx(e.shrink.x),e.shrink.y=this.convertToPx(e.shrink.y)),e},e.prototype.setup=function(){var e=this.options,i=t(this.$element.children("svg")),n=i.children("g:first");this.$svg=i,this.$graph=n,this.$background=n.children("polygon:first"),this.$nodes=n.children(".node"),this.$edges=n.children(".edge"),this._nodesByName={},this._edgesByName={},this.$element.addClass("graphviz-svg"),this.$background.length&&this.$element.css("background",this.$background.attr("fill"));var o=this;this.$nodes.each(function(){o.setupNodesEdges(t(this),!0)}),this.$edges.each(function(){o.setupNodesEdges(t(this),!1)});var r=this.$graph.children("title");this.$graph.attr("data-name",r.text()),r.remove(),e.zoom&&this.setupZoom(),e.ready&&e.ready.call(this)},e.prototype.setupNodesEdges=function(e,i){var n=this,o=this.options;e.find("polygon, ellipse, path").each(function(){var e=t(this);e.data("graphviz.svg.color",{fill:e.attr("fill"),stroke:e.attr("stroke")}),i&&o.shrink&&n.scaleNode(e)});var r,s,h=e.children("title");if(h[0]){var a=h.text().replace(/:[snew][ew]?/g,"");e.attr("data-name",a),h.remove(),i?this._nodesByName[a]=e[0]:this._edgesByName[a]=e[0];for(var l=e[0].previousSibling;l&&8!=l.nodeType;)l=l.previousSibling;if(null!=l&&8==l.nodeType){var p=(r=l.nodeValue.trim(),(s=document.createElement("div")).innerHTML=r,s.childNodes[0].nodeValue);p!=a&&e.attr("data-comment",p)}}e.children("a").filter(function(){return t(this).attr("xlink:title")}).each(function(){var e=t(this);e.attr("title",e.attr("xlink:title")),e.removeAttr("xlink:title"),o.tooltips&&o.tooltips.init.call(this,n.$element)})},e.prototype.setupZoom=function(){var t=this,e=this.$element,i=this.$svg;this.zoom={width:i.attr("width"),height:i.attr("height"),percentage:null},this.scaleView(100),e.mousewheel(function(n){if(n.shiftKey){var o=t.zoom.percentage;(o-=n.deltaY*n.deltaFactor)<100&&(o=100);var r=n.pageX-i.offset().left,s=n.pageY-i.offset().top,h=r/i.width(),a=s/i.height(),l=n.pageX-e.offset().left,p=n.pageY-e.offset().top;return t.scaleView(o),e.scrollLeft(h*i.width()+.5-l),e.scrollTop(a*i.height()+.5-p),!1}})},e.prototype.scaleView=function(t){var e=this,i=this.$svg;i.attr("width",t+"%"),i.attr("height",t+"%"),this.zoom.percentage=t,this.$nodes.add(this.$edges).children("a[title]").each(function(){e.options.tooltips.update.call(this)})},e.prototype.scaleNode=function(t){var e=this.options.shrink.x,i=this.options.shrink.y,n=t.prop("tagName");if("ellipse"==n)t.attr("rx",parseFloat(t.attr("rx"))-e),t.attr("ry",parseFloat(t.attr("ry"))-i);else if("polygon"==n){var o=t[0].getBBox(),r=o.x+o.width/2,s=o.y+o.height/2,h=t.attr("points").split(" "),a="";for(var l in h){var p=h[l].split(","),d=parseFloat(p[0]),u=parseFloat(p[1]);a+=(r-d)/(o.width/2)*e+d+","+((s-u)/(o.height/2)*i+u)+" "}t.attr("points",a)}},e.prototype.convertToPx=function(t){var i=t;if("string"==typeof t){var n=t.length,o=1;t.endsWith("px")?n-=2:t.endsWith("pt")&&(n-=2,o=e.GVPT_2_PX),i=parseFloat(t.substring(0,n))*o}return i},e.prototype.findEdge=function(t,e,i){var n=[];for(var o in this._edgesByName){var r=e(t,o);r&&(i&&i.push(this._edgesByName[o]),n.push(r))}return n},e.prototype.findLinked=function(e,i,n,o){var r=t(e),s=null;i&&(s=o);var h=this.findEdge(r.attr("data-name"),n,s);for(var a in h){var l=this._nodesByName[h[a]];o.is(l)||(o.push(l),this.findLinked(l,i,n,o))}},e.prototype.colorElement=function(e,i){var n=this.$element.css("background");e.find("polygon, ellipse, path").each(function(){var e=t(this),o=e.data("graphviz.svg.color");o.fill&&"path"!=e.prop("tagName")&&e.attr("fill",i(o.fill,n)),o.stroke&&e.attr("stroke",i(o.stroke,n))})},e.prototype.restoreElement=function(e){e.find("polygon, ellipse, path").each(function(){var e=t(this),i=e.data("graphviz.svg.color");i.fill&&e.attr("fill",i.fill),i.stroke&&e.attr("stroke",i.stroke)})},e.prototype.nodes=function(){return this.$nodes},e.prototype.edges=function(){return this.$edges},e.prototype.nodesByName=function(){return this._nodesByName},e.prototype.edgesByName=function(){return this._edgesByName},e.prototype.linkedTo=function(e,i){var n=t();return this.findLinked(e,i,function(t,e){var i=null,n="->"+t;return e.endsWith(n)&&(i=e.substring(0,e.length-n.length)),i},n),n},e.prototype.linkedFrom=function(e,i){var n=t();return this.findLinked(e,i,function(t,e){var i=null,n=t+"->";return e.startsWith(n)&&(i=e.substring(n.length)),i},n),n},e.prototype.linked=function(e,i){var n=t();return this.findLinked(e,i,function(t,e){return"^"+name+"--(.*)$"},n),this.findLinked(e,i,function(t,e){return"^(.*)--"+name+"$"},n),n},e.prototype.tooltip=function(e,i){var n=this.options;e.each(function(){t(this).children("a[title]").each(function(){i?n.tooltips.show.call(this):n.tooltips.hide.call(this)})})},e.prototype.bringToFront=function(t){t.detach().appendTo(this.$graph)},e.prototype.sendToBack=function(t){this.$background.length?$element.insertAfter(this.$background):t.detach().prependTo(this.$graph)},e.prototype.highlight=function(e,i){var n=this,o=this.options,r=this.$nodes.add(this.$edges);e&&e.length>0?(r.not(e).each(function(){n.colorElement(t(this),o.highlight.unselected),n.tooltip(t(this))}),e.each(function(){n.colorElement(t(this),o.highlight.selected)}),i&&this.tooltip(e,!0)):(r.each(function(){n.restoreElement(t(this))}),this.tooltip(r))},e.prototype.destroy=function(){var t=this;this.hide(function(){t.$element.off("."+t.type).removeData(t.type)})};var i=t.fn.graphviz;t.fn.graphviz=function(i){return this.each(function(){var n=t(this),o=n.data("graphviz.svg"),r="object"==typeof i&&i;!o&&/destroy/.test(i)||(o||n.data("graphviz.svg",o=new e(this,r)),"string"==typeof i&&o[i]())})},t.fn.graphviz.Constructor=e,t.fn.graphviz.noConflict=function(){return t.fn.graphviz=i,this}}(jQuery);</script>
+		<script type="text/javascript">
+ 			$(document).ready(function(){
+                $("#graph").graphviz({
+                    svg: `<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 14.1.5 (20260411.2331)
+ -->
+<!-- Title: G Pages: 1 -->
+<svg width="978pt" height="233pt"
+ viewBox="0.00 0.00 978.00 233.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 228.5)">
+<title>G</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-228.5 974,-228.5 974,4 -4,4"/>
+<g id="clust1" class="cluster">
+<title>cluster_G</title>
+<path fill="#808080" fill-opacity="0.094118" stroke="black" d="M20,-8C20,-8 950,-8 950,-8 956,-8 962,-14 962,-20 962,-20 962,-204.5 962,-204.5 962,-210.5 956,-216.5 950,-216.5 950,-216.5 20,-216.5 20,-216.5 14,-216.5 8,-210.5 8,-204.5 8,-204.5 8,-20 8,-20 8,-14 14,-8 20,-8"/>
+</g>
+<g id="clust2" class="cluster">
+<title>cluster_tool_client</title>
+<path fill="#808080" fill-opacity="0.094118" stroke="black" d="M128,-16C128,-16 942,-16 942,-16 948,-16 954,-22 954,-28 954,-28 954,-152.5 954,-152.5 954,-158.5 948,-164.5 942,-164.5 942,-164.5 128,-164.5 128,-164.5 122,-164.5 116,-158.5 116,-152.5 116,-152.5 116,-28 116,-28 116,-22 122,-16 128,-16"/>
+<text xml:space="preserve" text-anchor="middle" x="535" y="-147.2" font-family="Times New Roman,serif" font-size="14.00">tool_client</text>
+</g>
+<!-- test_tools -->
+<g id="node1" class="node">
+<title>test_tools</title>
+<ellipse fill="#ffffff" fill-opacity="0.698039" stroke="black" cx="62" cy="-114" rx="46.23" ry="18"/>
+<text xml:space="preserve" text-anchor="middle" x="62" y="-108.95" font-family="Times New Roman,serif" font-size="14.00" fill="#000000">test_tools</text>
+</g>
+<!-- tool_client__create_file -->
+<g id="node4" class="node">
+<title>tool_client__create_file</title>
+<ellipse fill="#ffffff" fill-opacity="0.698039" stroke="black" cx="277" cy="-42" rx="49.82" ry="18"/>
+<text xml:space="preserve" text-anchor="middle" x="277" y="-36.95" font-family="Times New Roman,serif" font-size="14.00" fill="#000000">create_file</text>
+</g>
+<!-- test_tools&#45;&gt;tool_client__create_file -->
+<g id="edge4" class="edge">
+<title>test_tools&#45;&gt;tool_client__create_file</title>
+<path fill="none" stroke="#000000" d="M95.86,-101.4C101.26,-99.58 106.78,-97.73 112,-96 151.52,-82.93 196.52,-68.51 229.53,-58.01"/>
+<polygon fill="#000000" stroke="#000000" points="230.33,-61.43 238.8,-55.07 228.21,-54.76 230.33,-61.43"/>
+</g>
+<!-- tool_client__delete_file -->
+<g id="node5" class="node">
+<title>tool_client__delete_file</title>
+<ellipse fill="#ffffff" fill-opacity="0.698039" stroke="black" cx="628" cy="-42" rx="49.82" ry="18"/>
+<text xml:space="preserve" text-anchor="middle" x="628" y="-36.95" font-family="Times New Roman,serif" font-size="14.00" fill="#000000">delete_file</text>
+</g>
+<!-- test_tools&#45;&gt;tool_client__delete_file -->
+<g id="edge3" class="edge">
+<title>test_tools&#45;&gt;tool_client__delete_file</title>
+<path fill="none" stroke="#000000" d="M94.22,-100.74C100.07,-98.89 106.16,-97.2 112,-96 311.55,-54.89 368.54,-96.39 569,-60 572.84,-59.3 576.79,-58.46 580.73,-57.52"/>
+<polygon fill="#000000" stroke="#000000" points="581.49,-60.94 590.3,-55.06 579.74,-54.16 581.49,-60.94"/>
+</g>
+<!-- tool_client__list_files -->
+<g id="node6" class="node">
+<title>tool_client__list_files</title>
+<ellipse fill="#ffffff" fill-opacity="0.698039" stroke="black" cx="167" cy="-42" rx="42.65" ry="18"/>
+<text xml:space="preserve" text-anchor="middle" x="167" y="-36.95" font-family="Times New Roman,serif" font-size="14.00" fill="#000000">list_files</text>
+</g>
+<!-- test_tools&#45;&gt;tool_client__list_files -->
+<g id="edge1" class="edge">
+<title>test_tools&#45;&gt;tool_client__list_files</title>
+<path fill="none" stroke="#000000" d="M84.53,-97.98C99.44,-88.04 119.2,-74.87 135.64,-63.91"/>
+<polygon fill="#000000" stroke="#000000" points="137.23,-67.05 143.61,-58.59 133.35,-61.23 137.23,-67.05"/>
+</g>
+<!-- tool_client__read_file -->
+<g id="node9" class="node">
+<title>tool_client__read_file</title>
+<ellipse fill="#ffffff" fill-opacity="0.698039" stroke="black" cx="388" cy="-42" rx="43.67" ry="18"/>
+<text xml:space="preserve" text-anchor="middle" x="388" y="-36.95" font-family="Times New Roman,serif" font-size="14.00" fill="#000000">read_file</text>
+</g>
+<!-- test_tools&#45;&gt;tool_client__read_file -->
+<g id="edge5" class="edge">
+<title>test_tools&#45;&gt;tool_client__read_file</title>
+<path fill="none" stroke="#000000" d="M94.85,-100.96C100.52,-99.13 106.39,-97.39 112,-96 209.86,-71.68 238,-83.74 336,-60 338.79,-59.32 341.64,-58.57 344.5,-57.77"/>
+<polygon fill="#000000" stroke="#000000" points="345.46,-61.14 354.04,-54.92 343.46,-54.43 345.46,-61.14"/>
+</g>
+<!-- tool_client__rename_file -->
+<g id="node10" class="node">
+<title>tool_client__rename_file</title>
+<ellipse fill="#ffffff" fill-opacity="0.698039" stroke="black" cx="505" cy="-42" rx="55.45" ry="18"/>
+<text xml:space="preserve" text-anchor="middle" x="505" y="-36.95" font-family="Times New Roman,serif" font-size="14.00" fill="#000000">rename_file</text>
+</g>
+<!-- test_tools&#45;&gt;tool_client__rename_file -->
+<g id="edge2" class="edge">
+<title>test_tools&#45;&gt;tool_client__rename_file</title>
+<path fill="none" stroke="#000000" d="M94.52,-100.8C100.28,-98.97 106.27,-97.27 112,-96 255.6,-64.13 296.4,-86.96 441,-60 445.08,-59.24 449.29,-58.35 453.5,-57.4"/>
+<polygon fill="#000000" stroke="#000000" points="454.21,-60.82 463.11,-55.08 452.57,-54.02 454.21,-60.82"/>
+</g>
+<!-- tool_client -->
+<g id="node2" class="node">
+<title>tool_client</title>
+<ellipse fill="#ffffff" fill-opacity="0.698039" stroke="black" cx="505" cy="-190.5" rx="50.33" ry="18"/>
+<text xml:space="preserve" text-anchor="middle" x="505" y="-185.45" font-family="Times New Roman,serif" font-size="14.00" fill="#000000">tool_client</text>
+</g>
+<!-- tool_client__main -->
+<g id="node8" class="node">
+<title>tool_client__main</title>
+<ellipse fill="#ffffff" fill-opacity="0.698039" stroke="black" cx="505" cy="-114" rx="29.86" ry="18"/>
+<text xml:space="preserve" text-anchor="middle" x="505" y="-108.95" font-family="Times New Roman,serif" font-size="14.00" fill="#000000">main</text>
+</g>
+<!-- tool_client&#45;&gt;tool_client__main -->
+<g id="edge6" class="edge">
+<title>tool_client&#45;&gt;tool_client__main</title>
+<path fill="none" stroke="#000000" d="M505,-172.22C505,-163.82 505,-153.49 505,-143.93"/>
+<polygon fill="#000000" stroke="#000000" points="508.5,-143.96 505,-133.96 501.5,-143.96 508.5,-143.96"/>
+</g>
+<!-- tool_client__call_llm_stream -->
+<g id="node3" class="node">
+<title>tool_client__call_llm_stream</title>
+<ellipse fill="#ffffff" fill-opacity="0.698039" stroke="black" cx="875" cy="-42" rx="71.31" ry="18"/>
+<text xml:space="preserve" text-anchor="middle" x="875" y="-36.95" font-family="Times New Roman,serif" font-size="14.00" fill="#000000">call_llm_stream</text>
+</g>
+<!-- tool_client__load_env -->
+<g id="node7" class="node">
+<title>tool_client__load_env</title>
+<ellipse fill="#ffffff" fill-opacity="0.698039" stroke="black" cx="741" cy="-42" rx="44.7" ry="18"/>
+<text xml:space="preserve" text-anchor="middle" x="741" y="-36.95" font-family="Times New Roman,serif" font-size="14.00" fill="#000000">load_env</text>
+</g>
+<!-- tool_client__main&#45;&gt;tool_client__call_llm_stream -->
+<g id="edge13" class="edge">
+<title>tool_client__main&#45;&gt;tool_client__call_llm_stream</title>
+<path fill="none" stroke="#000000" d="M533.45,-108.08C585.47,-99.02 699.35,-78.9 795,-60 800.21,-58.97 805.61,-57.88 811.02,-56.77"/>
+<polygon fill="#000000" stroke="#000000" points="811.55,-60.23 820.63,-54.77 810.13,-53.38 811.55,-60.23"/>
+</g>
+<!-- tool_client__main&#45;&gt;tool_client__create_file -->
+<g id="edge10" class="edge">
+<title>tool_client__main&#45;&gt;tool_client__create_file</title>
+<path fill="none" stroke="#000000" d="M483.35,-101.35C479.31,-99.41 475.07,-97.54 471,-96 412.51,-73.9 395.23,-76.79 335,-60 331.92,-59.14 328.75,-58.25 325.56,-57.34"/>
+<polygon fill="#000000" stroke="#000000" points="326.74,-54.03 316.16,-54.63 324.8,-60.76 326.74,-54.03"/>
+</g>
+<!-- tool_client__main&#45;&gt;tool_client__delete_file -->
+<g id="edge9" class="edge">
+<title>tool_client__main&#45;&gt;tool_client__delete_file</title>
+<path fill="none" stroke="#000000" d="M526.14,-100.97C544.29,-90.64 570.82,-75.54 592.26,-63.34"/>
+<polygon fill="#000000" stroke="#000000" points="593.73,-66.53 600.69,-58.54 590.27,-60.44 593.73,-66.53"/>
+</g>
+<!-- tool_client__main&#45;&gt;tool_client__list_files -->
+<g id="edge7" class="edge">
+<title>tool_client__main&#45;&gt;tool_client__list_files</title>
+<path fill="none" stroke="#000000" d="M483.49,-100.95C479.43,-99.06 475.16,-97.3 471,-96 362.58,-62.16 328.55,-86.06 218,-60 215.22,-59.34 212.37,-58.6 209.52,-57.8"/>
+<polygon fill="#000000" stroke="#000000" points="210.61,-54.48 200.02,-54.94 208.59,-61.18 210.61,-54.48"/>
+</g>
+<!-- tool_client__main&#45;&gt;tool_client__load_env -->
+<g id="edge11" class="edge">
+<title>tool_client__main&#45;&gt;tool_client__load_env</title>
+<path fill="none" stroke="#000000" d="M531.58,-105.46C567.07,-95.33 631.88,-76.7 687,-60 689.9,-59.12 692.88,-58.21 695.89,-57.28"/>
+<polygon fill="#000000" stroke="#000000" points="696.8,-60.66 705.31,-54.35 694.72,-53.98 696.8,-60.66"/>
+</g>
+<!-- tool_client__main&#45;&gt;tool_client__read_file -->
+<g id="edge12" class="edge">
+<title>tool_client__main&#45;&gt;tool_client__read_file</title>
+<path fill="none" stroke="#000000" d="M484.35,-100.65C467.07,-90.3 442.06,-75.34 421.85,-63.25"/>
+<polygon fill="#000000" stroke="#000000" points="423.75,-60.31 413.38,-58.18 420.16,-66.32 423.75,-60.31"/>
+</g>
+<!-- tool_client__main&#45;&gt;tool_client__rename_file -->
+<g id="edge8" class="edge">
+<title>tool_client__main&#45;&gt;tool_client__rename_file</title>
+<path fill="none" stroke="#000000" d="M505,-95.7C505,-88.41 505,-79.73 505,-71.54"/>
+<polygon fill="#000000" stroke="#000000" points="508.5,-71.62 505,-61.62 501.5,-71.62 508.5,-71.62"/>
+</g>
+</g>
+</svg>
+`,
+                    ready: function() {
+                        var gv = this
+                        gv.nodes().click(function () {
+                            var $set = $()
+                            $set.push(this)
+                            $set = $set.add(gv.linkedFrom(this, true))
+                            $set = $set.add(gv.linkedTo(this, true))
+                            gv.highlight($set, true)
+                            gv.bringToFront($set)
+                        })
+                        $(document).keydown(function (evt) {
+                            if (evt.keyCode == 27) {
+                                gv.highlight()
+                            }
+                        })
+                    }
+                });
+            });
+		</script>
+	</body>
+</html>

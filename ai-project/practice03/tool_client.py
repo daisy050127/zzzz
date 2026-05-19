@@ -94,6 +94,48 @@ def read_file(directory, file_name):
     except Exception as e:
         return {"status": "error", "message": str(e)}
 
+# 工具函数：访问网页并返回内容
+def fetch_webpage(url):
+    try:
+        # 解析 URL
+        parsed_url = urlparse(url)
+        scheme = parsed_url.scheme
+        host = parsed_url.netloc
+        path = parsed_url.path or '/'
+        query = parsed_url.query
+        if query:
+            path += '?' + query
+        
+        # 创建连接
+        if scheme == 'https':
+            conn = http.client.HTTPSConnection(host)
+        else:
+            conn = http.client.HTTPConnection(host)
+        
+        # 发送请求
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+        }
+        
+        conn.request("GET", path, headers=headers)
+        
+        # 获取响应
+        response = conn.getresponse()
+        
+        # 读取响应内容
+        content = response.read().decode('utf-8', errors='ignore')
+        
+        conn.close()
+        
+        # 限制返回内容长度，避免过大
+        max_content_length = 10000
+        if len(content) > max_content_length:
+            content = content[:max_content_length] + "\n... (内容过长，已截断)"
+        
+        return {"status": "success", "data": content}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
 # 流式访问 LLM API
 def call_llm_stream(prompt, env_vars, history):
     base_url = env_vars.get('BASE_URL', 'https://api.openai.com/v1')
@@ -217,6 +259,11 @@ def main():
      - file_name (字符串) - 要读取的文件名称
    - 返回：文件内容
 
+6. fetch_webpage(url): 访问指定的网页并返回网页内容
+   - 参数：
+     - url (字符串) - 要访问的网页URL
+   - 返回：网页内容
+
 当用户请求需要使用这些工具时，请以JSON格式输出工具调用请求，格式如下：
 {"tool_call": {"name": "工具名称", "params": {"参数1": "值1", "参数2": "值2"}}}
 
@@ -228,7 +275,7 @@ def main():
     
     print("=== AI 工具调用终端 ===")
     print("输入 'exit' 或按 Ctrl+C 退出")
-    print("可用工具: list_files, rename_file, delete_file, create_file, read_file")
+    print("可用工具: list_files, rename_file, delete_file, create_file, read_file, fetch_webpage")
     print("======================\n")
     
     try:
@@ -271,6 +318,8 @@ def main():
                             result = create_file(params.get('directory'), params.get('file_name'), params.get('content'))
                         elif tool_name == 'read_file':
                             result = read_file(params.get('directory'), params.get('file_name'))
+                        elif tool_name == 'fetch_webpage':
+                            result = fetch_webpage(params.get('url'))
                         else:
                             result = {"status": "error", "message": "未知工具"}
                         
